@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background-color: #0f0f14;
+  color: #e2e8f0;
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+::-webkit-scrollbar-thumb {
+  background: #6366f1;
+  border-radius: 3px;
+}
+
+/* 拖拽上传区 */
+.drop-zone {
+  border: 2px dashed #2d2d44;
+  transition: all 0.3s ease;
+}
+.drop-zone.drag-over {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.08);
+}
+
+/* 滑块样式 */
+input[type="range"] {
+  -webkit-appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: #2d2d44;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #6366f1;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Canvas 渲染 */
+canvas {
+  image-rendering: pixelated;
+}

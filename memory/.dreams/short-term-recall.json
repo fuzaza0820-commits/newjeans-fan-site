@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-08T03:18:06.906Z",
+  "entries": {
+    "memory:memory/2026-06-05.md:1:35": {
+      "key": "memory:memory/2026-06-05.md:1:35",
+      "path": "memory/2026-06-05.md",
+      "startLine": 1,
+      "endLine": 35,
+      "source": "memory",
+      "snippet": "# 2026-06-05 Daily Memory ## NewJeans 网站部署计划（进行中） ### 部署需求 - 用户要求将 NewJeans 静态网站部署到线上 - 用户有 GitHub 账号 - 需要绑定自定义域名 - 推荐方案: **Cloudflare Pages**（免费、全球CDN加速、绑定自定义域名最方便） - gh CLI 尚未安装，需要先安装 GitHub CLI ### 待用户确认 - 用户的具体域名是什么？ - 域名 DNS 在哪里管理？（Cloudflare / 阿里云 / 腾讯云 / 其他） ### 部署流程（待执行） 1. 安装 gh CLI → 登录 GitHub 2. 初始化 git 仓库 → 推送代码到 GitHub 3. 连接 Cloudflare Pages → 自动部署 4. 绑定自定义域名 → 配置 DNS ### 项目文件清单 - 主页: `newjeans-index.html` - 专辑页: `newjeans-albums.html` - 资源目录: `landscape_final/`（含 cd_albums/ 10张CD封面、bunny_cursor.png 等） - 本地预览: `http://127.0.0.1:8877/` ## 本地服务器恢复（16:53） - 用户反映打不开网页，以为是B站链接丢失 - 实际原因：昨天启动的本地HTTP服务器（端口8877）已停止 - 检查发现多个进程占用8877端口，全部清理后重新启动 - 使用 PowerShell 启动: `Start-Process p",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.4312279313802719,
+      "maxScore": 0.4312279313802719,
+      "firstRecalledAt": "2026-06-08T03:18:06.906Z",
+      "lastRecalledAt": "2026-06-08T03:18:06.906Z",
+      "queryHashes": [
+        "e9e6971ed3f2"
+      ],
+      "recallDays": [
+        "2026-06-08"
+      ],
+      "conceptTags": [
+        "newjeans-index.html",
+        "newjeans-albums.html",
+        "landscape-final",
+        "cd-albums",
+        "bunny-cursor.png",
+        "127.0.0.1",
+        "start-process",
+        "newjeans"
+      ]
+    }
+  }
+}

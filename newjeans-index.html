@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewJeans - Powerpuff Girls × Murakami Dreamcore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Permanent+Marker&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --dream-blue: #b8d4e8;
+            --dream-pink: #ffc0cb;
+            --dream-lavender: #e6e6fa;
+            --soft-cyan: #aeeeee;
+            --candy-pink: #FF1493;
+            --candy-blue: #00BFFF;
+            --candy-yellow: #FFFF00;
+            --candy-green: #32CD32;
+            --candy-purple: #9D00FF;
+            --black: #000;
+            --white: #FFF;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Fredoka One', cursive;
+            background: linear-gradient(180deg, var(--dream-blue) 0%, var(--dream-lavender) 50%, var(--dream-pink) 100%);
+            color: var(--white);
+            overflow-x: hidden;
+            cursor: none;
+            min-height: 100vh;
+        }
+
+        /* ===== 像素点阵背景 ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px);
+            background-size: 6px 6px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ===== 扫描线 ===== */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+            z-index: 9998;
+            pointer-events: none;
+        }
+
+        /* ===== 梦核光晕 ===== */
+        .dream-glow {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(184,212,232,0.5) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(255,192,203,0.4) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+            animation: dreamGlowShift 8s ease-in-out infinite alternate;
+        }
+        @keyframes dreamGlowShift {
+            0% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* ===== Bunny 鼠标棒自定义光标 ===== */
+        .cursor {
+            width: 48px; height: 35px;
+            background: url('landscape_final/bunny_cursor.png') no-repeat center/contain;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.15s ease;
+            filter: drop-shadow(0 0 8px rgba(255,20,147,0.7));
+            image-rendering: auto;
+            /* 让热点对准棒底部尖端 */
+            transform-origin: bottom center;
+        }
+        .cursor.hover {
+            transform: scale(1.5) rotate(-15deg);
+            filter: drop-shadow(0 0 16px rgba(255,255,0,0.9));
+        }
+
+        /* ===== 导航栏 ===== */
+        nav {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(12px);
+            border-bottom: 3px solid var(--candy-pink);
+        }
+        .logo {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem;
+            color: var(--candy-pink);
+            text-shadow: 2px 2px 0 var(--black);
+            letter-spacing: 2px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            list-style: none;
+        }
+        .nav-links a {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            color: var(--candy-blue);
+            text-decoration: none;
+            padding: 0.5rem 0.8rem;
+            border: 2px solid var(--candy-blue);
+            background: rgba(255,255,255,0.5);
+            transition: all 0.15s;
+            text-shadow: 1px 1px 0 var(--black);
+        }
+        .nav-links a:hover, .nav-links a.active {
+            background: var(--candy-blue);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 3px 3px 0 var(--black);
+        }
+
+        /* ===== HERO - 全屏轮播 ===== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .hero-slideshow {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .hero-slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+        }
+        .hero-slide.active { opacity: 1; }
+        .hero-slide img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            filter: brightness(0.85) contrast(1.1) saturate(1.3);
+            animation: slideZoom 12s ease-in-out infinite alternate;
+        }
+        @keyframes slideZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.08); }
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg,
+                rgba(184,212,232,0.55) 0%,
+                rgba(230,230,250,0.45) 30%,
+                rgba(255,192,203,0.4) 70%,
+                rgba(174,238,238,0.45) 100%);
+            z-index: 1;
+            mix-blend-mode: soft-light;
+        }
+        .vhs-stripes {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg,
+                transparent 0px, transparent 3px,
+                rgba(255,0,100,0.03) 3px, rgba(255,0,100,0.03) 6px);
+            z-index: 2;
+            pointer-events: none;
+            animation: vhsJitter 0.08s infinite alternate;
+        }
+        @keyframes vhsJitter {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(1px); }
+        }
+        .pixel-blocks {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 3;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .pixel-block {
+            position: absolute;
+            width: 10px; height: 10px;
+            background: var(--candy-pink);
+            opacity: 0.4;
+            animation: pixelFloat linear infinite;
+            image-rendering: pixelated;
+        }
+        @keyframes pixelFloat {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+        }
+        .slide-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            width: 56px; height: 56px;
+            border: 3px solid var(--white);
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            color: var(--white);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+        }
+        .slide-btn:hover {
+            background: var(--candy-pink);
+            border-color: var(--candy-pink);
+            transform: translateY(-50%) scale(1.15);
+            box-shadow: 0 0 25px var(--candy-pink);
+        }
+        .slide-btn.prev { left: 2rem; }
+        .slide-btn.next { right: 2rem; }
+        .slide-indicators {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+        .slide-dot {
+            width: 14px; height: 14px;
+            border: 2px solid var(--white);
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            image-rendering: pixelated;
+            box-shadow: 0 0 8px rgba(255,255,255,0.3);
+        }
+        .slide-dot.active {
+            background: var(--candy-pink);
+            border-color: var(--candy-pink);
+            transform: scale(1.3);
+            box-shadow: 0 0 15px var(--candy-pink);
+        }
+        .slide-dot:hover {
+            background: var(--candy-blue);
+            border-color: var(--candy-blue);
+        }
+        .slide-counter {
+            position: absolute;
+            top: 5.5rem; right: 2rem;
+            z-index: 10;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            color: var(--white);
+            background: rgba(0,0,0,0.35);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            backdrop-filter: blur(6px);
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+        }
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+        }
+        .hero h1 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            color: var(--white);
+            text-shadow:
+                4px 4px 0 var(--candy-pink),
+                -4px -4px 0 var(--candy-blue),
+                0 0 30px rgba(255,255,255,0.8),
+                0 0 60px rgba(255,192,203,0.6);
+            animation: heroTitlePulse 3s ease-in-out infinite;
+            letter-spacing: 4px;
+            position: relative;
+        }
+        .hero h1::before, .hero h1::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            opacity: 0.6;
+        }
+        .hero h1::before {
+            color: var(--candy-blue);
+            z-index: -1;
+            animation: glitchBefore 2.5s infinite;
+            clip-path: inset(0 0 55% 0);
+        }
+        .hero h1::after {
+            color: var(--candy-green);
+            z-index: -1;
+            animation: glitchAfter 2s infinite;
+            clip-path: inset(55% 0 0 0);
+        }
+        @keyframes heroTitlePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.02); }
+        }
+        @keyframes glitchBefore {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-3px, 1px); }
+            40% { transform: translate(3px, -1px); }
+            60% { transform: translate(-2px, 1px); }
+            80% { transform: translate(2px, -1px); }
+        }
+        @keyframes glitchAfter {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(3px, -1px); }
+            40% { transform: translate(-3px, 1px); }
+            60% { transform: translate(2px, -1px); }
+            80% { transform: translate(-2px, 1px); }
+        }
+        .hero-subtitle {
+            font-family: 'Permanent Marker', cursive;
+            font-size: clamp(1rem, 3vw, 1.6rem);
+            color: var(--candy-purple);
+            margin-top: 1.5rem;
+            text-shadow: 2px 2px 0 var(--white), 0 0 15px rgba(157,0,255,0.5);
+            animation: subtitleGlow 2s ease-in-out infinite alternate;
+        }
+        @keyframes subtitleGlow {
+            0% { text-shadow: 2px 2px 0 var(--white), 0 0 15px rgba(157,0,255,0.3); }
+            100% { text-shadow: 2px 2px 0 var(--white), 0 0 30px rgba(157,0,255,0.7); }
+        }
+
+        /* ===== 成员介绍 Section ===== */
+        .members-section {
+            padding: 6rem 2rem 4rem;
+            background: linear-gradient(180deg, rgba(184,212,232,0.3) 0%, rgba(255,255,255,0.9) 50%, rgba(255,192,203,0.3) 100%);
+            position: relative;
+        }
+        .members-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: radial-gradient(circle, var(--candy-pink) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        .section-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--candy-pink);
+            text-shadow: 3px 3px 0 var(--white), -2px -2px 0 var(--candy-blue);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .section-subtitle {
+            font-family: 'Fredoka One', cursive;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        /* 拼贴图横条布局 */
+        .collage-container {
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 5px solid var(--candy-pink);
+            box-shadow: 8px 8px 0 var(--candy-blue);
+        }
+        .collage-strip {
+            position: relative;
+            width: 100%;
+            height: 160px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-bottom: 2px solid rgba(255,255,255,0.5);
+        }
+        .collage-strip:last-child { border-bottom: none; }
+        .collage-strip img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.9) saturate(1.2);
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s;
+        }
+        .collage-strip:hover img {
+            transform: scale(1.15);
+            filter: brightness(1) saturate(1.4);
+        }
+        .collage-strip:hover {
+            height: 220px;
+        }
+
+        /* 悬停描边动画 */
+        .collage-strip::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            border: 0px solid transparent;
+            transition: border-width 0.3s, border-color 0.3s;
+            box-sizing: border-box;
+        }
+        .collage-strip:hover::before {
+            border-width: 6px;
+        }
+        .collage-strip[data-color="yellow"]:hover::before { border-color: var(--candy-yellow); }
+        .collage-strip[data-color="purple"]:hover::before { border-color: var(--candy-purple); }
+        .collage-strip[data-color="pink"]:hover::before { border-color: var(--candy-pink); }
+        .collage-strip[data-color="green"]:hover::before { border-color: var(--candy-green); }
+        .collage-strip[data-color="blue"]:hover::before { border-color: var(--candy-blue); }
+
+        /* 悬停描边闪光动画 */
+        .collage-strip::after {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px;
+            right: -2px; bottom: -2px;
+            z-index: 1;
+            pointer-events: none;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.6) 50%, transparent 70%);
+            background-size: 300% 300%;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .collage-strip:hover::after {
+            opacity: 1;
+            animation: borderShine 1.5s ease-in-out infinite;
+        }
+        @keyframes borderShine {
+            0% { background-position: 100% 100%; }
+            50% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* 成员名标签 */
+        .strip-label {
+            position: absolute;
+            bottom: 12px; left: 16px;
+            z-index: 3;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            color: var(--white);
+            background: rgba(0,0,0,0.5);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            backdrop-filter: blur(6px);
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.6);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .collage-strip:hover .strip-label {
+            transform: translateY(-4px);
+            background: rgba(0,0,0,0.7);
+        }
+        .collage-strip[data-color="yellow"]:hover .strip-label { border-color: var(--candy-yellow); }
+        .collage-strip[data-color="purple"]:hover .strip-label { border-color: var(--candy-purple); }
+        .collage-strip[data-color="pink"]:hover .strip-label { border-color: var(--candy-pink); }
+        .collage-strip[data-color="green"]:hover .strip-label { border-color: var(--candy-green); }
+        .collage-strip[data-color="blue"]:hover .strip-label { border-color: var(--candy-blue); }
+
+        /* ===== 专辑作品 Section ===== */
+        .albums-section {
+            padding: 6rem 2rem 4rem;
+            background: linear-gradient(180deg, rgba(255,192,203,0.3) 0%, rgba(230,230,250,0.6) 50%, rgba(184,212,232,0.3) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .albums-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: radial-gradient(circle, var(--candy-blue) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        .cd-track {
+            display: flex;
+            gap: 2rem;
+            padding: 1rem 0;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .cd-track::-webkit-scrollbar { display: none; }
+        .cd-item {
+            flex: 0 0 260px;
+            scroll-snap-align: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.35s;
+        }
+        .cd-item:hover { transform: translateY(-12px); }
+        .cd-disc {
+            width: 240px; height: 240px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            position: relative;
+            background: conic-gradient(
+                from 0deg,
+                #ff6b9d, #c44dff, #6bbaff, #4dff88, #ffeb3b, #ff6b9d
+            );
+            box-shadow: 4px 4px 0 var(--black), 0 0 0 4px var(--black);
+            transition: all 0.4s;
+            animation: cdSpin 8s linear infinite paused;
+        }
+        .cd-item:hover .cd-disc {
+            animation-play-state: running;
+            box-shadow: 6px 6px 0 var(--candy-pink), 0 0 0 4px var(--candy-pink), 0 0 30px rgba(255,20,147,0.4);
+        }
+        @keyframes cdSpin {
+            to { transform: rotate(360deg); }
+        }
+        .cd-hole {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px; height: 50px;
+            background: var(--dream-lavender);
+            border-radius: 50%;
+            border: 4px solid var(--black);
+        }
+        .cd-label {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.4rem;
+            color: var(--black);
+            white-space: nowrap;
+        }
+        .cd-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.55rem;
+            color: var(--candy-purple);
+            text-shadow: 1px 1px 0 var(--white);
+            margin-bottom: 0.3rem;
+        }
+        .cd-year {
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* ===== CD 点击爱心星星弹出 ===== */
+        .cd-sparkle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.4rem;
+            z-index: 100;
+            animation: sparkleBurst 0.8s ease-out forwards;
+        }
+        @keyframes sparkleBurst {
+            0% { opacity: 1; transform: translate(0, 0) scale(0.5) rotate(0deg); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.2) rotate(180deg); }
+        }
+
+        /* ===== 写真集 Section ===== */
+        .gallery-section {
+            padding: 6rem 2rem 4rem;
+            background: linear-gradient(180deg, rgba(184,212,232,0.3) 0%, rgba(255,255,255,0.9) 50%, rgba(230,230,250,0.4) 100%);
+            position: relative;
+        }
+        .gallery-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: radial-gradient(circle, var(--candy-yellow) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.12;
+            pointer-events: none;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .gallery-item {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 4px solid var(--candy-blue);
+            box-shadow: 5px 5px 0 var(--black);
+            transition: all 0.3s;
+            aspect-ratio: 16/10;
+        }
+        .gallery-item:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 8px 8px 0 var(--candy-pink);
+            border-color: var(--candy-pink);
+        }
+        .gallery-item img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s, filter 0.3s;
+            filter: brightness(0.95) saturate(1.2);
+        }
+        .gallery-item:hover img {
+            transform: scale(1.08);
+            filter: brightness(1.05) saturate(1.4);
+        }
+        .gallery-item::after {
+            content: '✿';
+            position: absolute;
+            top: 8px; right: 10px;
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 2;
+        }
+        .gallery-item:hover::after { opacity: 1; }
+
+        /* ===== 成员详情弹窗 ===== */
+        .member-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(184,212,232,0.95);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+        .member-modal.active { display: flex; }
+        .modal-content {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 800px;
+            width: 90%;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            border: 5px solid var(--candy-pink);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: modalIn 0.3s ease-out;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-image {
+            width: 280px; height: 280px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 5px solid var(--candy-blue);
+            box-shadow: 6px 6px 0 rgba(0,0,0,0.1);
+        }
+        .modal-info { flex: 1; }
+        .modal-name {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.3rem;
+            color: var(--candy-pink);
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 0 var(--white);
+        }
+        .modal-role {
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.9rem;
+            color: var(--candy-purple);
+            margin-bottom: 0.3rem;
+        }
+        .modal-bday {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.45rem;
+            color: #888;
+            margin-bottom: 1rem;
+        }
+        .modal-color {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.45rem;
+            margin-bottom: 1rem;
+            border: 2px solid;
+        }
+        .modal-desc {
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.8;
+        }
+        .modal-close {
+            position: absolute;
+            top: 2rem; right: 2rem;
+            width: 50px; height: 50px;
+            background: var(--candy-pink);
+            border: 3px solid var(--black);
+            border-radius: 50%;
+            color: var(--white);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+        .modal-close:hover {
+            background: var(--candy-yellow);
+            transform: scale(1.1);
+        }
+
+        /* ===== Footer ===== */
+        footer {
+            padding: 2rem;
+            background: linear-gradient(180deg, rgba(255,192,203,0.5) 0%, rgba(184,212,232,0.8) 100%);
+            text-align: center;
+            border-top: 4px solid var(--candy-pink);
+        }
+        .footer-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            color: var(--candy-purple);
+            text-shadow: 1px 1px 0 var(--white);
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .modal-content { flex-direction: column; padding: 1.5rem; }
+            .modal-image { width: 180px; height: 180px; }
+            .modal-name { font-size: 1rem; }
+            nav { padding: 0.8rem 1rem; }
+            .nav-links a { font-size: 0.35rem; padding: 0.3rem 0.4rem; }
+            .slide-btn { width: 40px; height: 40px; font-size: 0.8rem; }
+            .slide-btn.prev { left: 0.8rem; }
+            .slide-btn.next { right: 0.8rem; }
+            .slide-dot { width: 10px; height: 10px; }
+            .collage-strip { height: 120px; }
+            .collage-strip:hover { height: 180px; }
+            .cd-item { flex: 0 0 200px; }
+            .cd-disc { width: 180px; height: 180px; }
+        }
+
+        /* ===== 滚动渐入 ===== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 扫描线 -->
+    <div class="scanlines"></div>
+
+    <!-- 梦核光晕 -->
+    <div class="dream-glow"></div>
+
+    <!-- 自定义光标 -->
+    <div class="cursor"></div>
+
+    <!-- 导航栏 -->
+    <nav>
+        <div class="logo">NEWJEANS</div>
+        <ul class="nav-links">
+            <li><a href="#home">HOME</a></li>
+            <li><a href="#members">MEMBERS</a></li>
+            <li><a href="#albums">ALBUMS</a></li>
+            <li><a href="#gallery">GALLERY</a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+        <div class="hero-slideshow" id="heroSlideshow">
+            <div class="hero-slide active"><img src="landscape_final/Pinterest_ffc393f6_1920x1080.jpg" alt="NewJeans 1"></div>
+            <div class="hero-slide"><img src="landscape_final/Pinterest_dbf0e56b_1920x1080.jpg" alt="NewJeans 2"></div>
+            <div class="hero-slide"><img src="landscape_final/Pinterest_039d4eed_1920x1080.jpg" alt="NewJeans 3"></div>
+            <div class="hero-slide"><img src="landscape_final/Pinterest_fa524a0c_1920x1080.jpg" alt="NewJeans 4"></div>
+            <div class="hero-slide"><img src="landscape_final/Pinterest_ed73dba2_1920x1080.jpg" alt="NewJeans 5"></div>
+            <div class="hero-slide"><img src="landscape_final/Pinterest_34ad9227_1920x1080.jpg" alt="NewJeans 6"></div>
+            <div class="hero-slide"><img src="landscape_final/Pinterest_b97e6dba_1920x1080.jpg" alt="NewJeans 7"></div>
+            <div class="hero-slide"><img src="landscape_final/Pinterest_3e073fc1_1920x1080.jpg" alt="NewJeans 8"></div>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="vhs-stripes"></div>
+        <div class="pixel-blocks" id="pixelBlocks"></div>
+        <button class="slide-btn prev" onclick="prevSlide()">&#9664;</button>
+        <button class="slide-btn next" onclick="nextSlide()">&#9654;</button>
+        <div class="slide-indicators" id="slideIndicators"></div>
+        <div class="slide-counter" id="slideCounter">01 / 08</div>
+        <div class="hero-content">
+            <h1 data-text="NEWJEANS">NEWJEANS</h1>
+            <p class="hero-subtitle">&#10047; Powerpuff Girls × Murakami Dreamcore &#10047;</p>
+        </div>
+    </section>
+
+    <!-- ===== 成员介绍 ===== -->
+    <section class="members-section" id="members">
+        <h2 class="section-title fade-in">MEMBERS</h2>
+        <p class="section-subtitle fade-in">2022年7月出道 · 5人女子组合 · ADOR出品</p>
+
+        <!-- 拼贴图横条 -->
+        <div class="collage-container fade-in">
+            <div class="collage-strip" data-color="yellow" data-member="danielle" onclick="openMemberModal(0)">
+                <img src="landscape_final/member_danielle_strip.jpg" alt="Danielle">
+                <span class="strip-label">✿ DANIELLE</span>
+            </div>
+            <div class="collage-strip" data-color="purple" data-member="hyein" onclick="openMemberModal(1)">
+                <img src="landscape_final/member_hyein_strip.jpg" alt="Hyein">
+                <span class="strip-label">✿ HYEIN</span>
+            </div>
+            <div class="collage-strip" data-color="pink" data-member="hanni" onclick="openMemberModal(2)">
+                <img src="landscape_final/member_hanni_strip.jpg" alt="Hanni">
+                <span class="strip-label">✿ HANNI</span>
+            </div>
+            <div class="collage-strip" data-color="green" data-member="haerin" onclick="openMemberModal(3)">
+                <img src="landscape_final/member_haerin_strip.jpg" alt="Haerin">
+                <span class="strip-label">✿ HAERIN</span>
+            </div>
+            <div class="collage-strip" data-color="blue" data-member="minji" onclick="openMemberModal(4)">
+                <img src="landscape_final/member_minji_strip.jpg" alt="Minji">
+                <span class="strip-label">✿ MINJI</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 专辑作品 ===== -->
+    <section class="albums-section" id="albums">
+        <h2 class="section-title fade-in">ALBUMS</h2>
+        <p class="section-subtitle fade-in">左右滑动浏览 · 点击播放</p>
+
+        <div class="cd-track fade-in">
+            <div class="cd-item" onclick="playAlbum('Attention')">
+                <div class="cd-disc"><div class="cd-hole"><span class="cd-label">1st</span></div></div>
+                <p class="cd-title">Attention</p>
+                <p class="cd-year">2022.07</p>
+            </div>
+            <div class="cd-item" onclick="playAlbum('Hype Boy')">
+                <div class="cd-disc"><div class="cd-hole"><span class="cd-label">2nd</span></div></div>
+                <p class="cd-title">Hype Boy</p>
+                <p class="cd-year">2022.07</p>
+            </div>
+            <div class="cd-item" onclick="playAlbum('Cookie')">
+                <div class="cd-disc"><div class="cd-hole"><span class="cd-label">3rd</span></div></div>
+                <p class="cd-title">Cookie</p>
+                <p class="cd-year">2022.08</p>
+            </div>
+            <div class="cd-item" onclick="playAlbum('Ditto')">
+                <div class="cd-disc"><div class="cd-hole"><span class="cd-label">4th</span></div></div>
+                <p class="cd-title">Ditto</p>
+                <p class="cd-year">2022.12</p>
+            </div>
+            <div class="cd-item" onclick="playAlbum('OMG')">
+                <div class="cd-disc"><div class="cd-hole"><span class="cd-label">5th</span></div></div>
+                <p class="cd-title">OMG</p>
+                <p class="cd-year">2023.01</p>
+            </div>
+            <div class="cd-item" onclick="playAlbum('Super Shy')">
+                <div class="cd-disc"><div class="cd-hole"><span class="cd-label">6th</span></div></div>
+                <p class="cd-title">Super Shy</p>
+                <p class="cd-year">2023.07</p>
+            </div>
+            <div class="cd-item" onclick="playAlbum('ETA')">
+                <div class="cd-disc"><div class="cd-hole"><span class="cd-label">7th</span></div></div>
+                <p class="cd-title">ETA</p>
+                <p class="cd-year">2023.07</p>
+            </div>
+            <div class="cd-item" onclick="playAlbum('Cool With You')">
+                <div class="cd-disc"><div class="cd-hole"><span class="cd-label">8th</span></div></div>
+                <p class="cd-title">Cool With You</p>
+                <p class="cd-year">2023.07</p>
+            </div>
+            <div class="cd-item" onclick="playAlbum('How Sweet')">
+                <div class="cd-disc"><div class="cd-hole"><span class="cd-label">9th</span></div></div>
+                <p class="cd-title">How Sweet</p>
+                <p class="cd-year">2024.05</p>
+            </div>
+            <div class="cd-item" onclick="playAlbum('Supernatural')">
+                <div class="cd-disc"><div class="cd-hole"><span class="cd-label">10th</span></div></div>
+                <p class="cd-title">Supernatural</p>
+                <p class="cd-year">2024.06</p>
+            </div>
+            <div class="cd-item" onclick="playAlbum('Right Now')">
+                <div class="cd-disc"><div class="cd-hole"><span class="cd-label">11th</span></div></div>
+                <p class="cd-title">Right Now</p>
+                <p class="cd-year">2024.06</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 写真集 ===== -->
+    <section class="gallery-section" id="gallery">
+        <h2 class="section-title fade-in">GALLERY</h2>
+        <p class="section-subtitle fade-in">梦核视觉记忆</p>
+
+        <div class="gallery-grid fade-in">
+            <div class="gallery-item"><img src="landscape_final/Pinterest_ffc393f6_1920x1080.jpg" alt="Gallery 1"></div>
+            <div class="gallery-item"><img src="landscape_final/Pinterest_dbf0e56b_1920x1080.jpg" alt="Gallery 2"></div>
+            <div class="gallery-item"><img src="landscape_final/Pinterest_039d4eed_1920x1080.jpg" alt="Gallery 3"></div>
+            <div class="gallery-item"><img src="landscape_final/Pinterest_fa524a0c_1920x1080.jpg" alt="Gallery 4"></div>
+            <div class="gallery-item"><img src="landscape_final/Pinterest_ed73dba2_1920x1080.jpg" alt="Gallery 5"></div>
+            <div class="gallery-item"><img src="landscape_final/Pinterest_34ad9227_1920x1080.jpg" alt="Gallery 6"></div>
+            <div class="gallery-item"><img src="landscape_final/Pinterest_b97e6dba_1920x1080.jpg" alt="Gallery 7"></div>
+            <div class="gallery-item"><img src="landscape_final/Pinterest_3e073fc1_1920x1080.jpg" alt="Gallery 8"></div>
+        </div>
+    </section>
+
+    <!-- ===== Footer ===== -->
+    <footer>
+        <p class="footer-text">&#9829; POWERPUFF GIRLS × NEWJEANS DREAMCORE EDITION &#9829;</p>
+    </footer>
+
+    <!-- ===== 成员详情弹窗 ===== -->
+    <div class="member-modal" id="memberModal">
+        <button class="modal-close" onclick="closeMemberModal()">&#10005;</button>
+        <div class="modal-content">
+            <img src="" alt="" class="modal-image" id="modalImage">
+            <div class="modal-info">
+                <h2 class="modal-name" id="modalName"></h2>
+                <p class="modal-role" id="modalRole"></p>
+                <p class="modal-bday" id="modalBday"></p>
+                <span class="modal-color" id="modalColor"></span>
+                <p class="modal-desc" id="modalDesc"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 成员数据 =====
+        const members = [
+            {
+                name: 'DANIELLE',
+                color: '#FFFF00',
+                colorName: 'yellow',
+                role: '主唱 · 主舞',
+                bday: '2005.04.11',
+                img: 'landscape_final/member_danielle_strip.jpg',
+                desc: '活力满满的韩国-澳大利亚混血女孩！阳光笑容是她的标志，代表色是明亮的黄色，就像她给人的感觉一样温暖耀眼。作为团队的主唱和主舞，她总能用充沛的能量点燃全场！'
+            },
+            {
+                name: 'HYEIN',
+                color: '#9D00FF',
+                colorName: 'purple',
+                role: '忙内 · 领舞',
+                bday: '2008.04.21',
+                img: 'landscape_final/member_hyein_strip.jpg',
+                desc: '身高却是队内最高的忙内！紫色是她的代表色，神秘而优雅。虽然年纪最小，但舞台表现力毫不逊色，台风稳重得像位资深偶像。时尚感超群，是品牌的宠儿！'
+            },
+            {
+                name: 'HANNI',
+                color: '#FF1493',
+                colorName: 'pink',
+                role: '主唱 · 领舞',
+                bday: '2004.10.06',
+                img: 'landscape_final/member_hanni_strip.jpg',
+                desc: '越南裔澳大利亚籍成员，甜美嗓音是她最大的武器，粉色的代表色映衬出她的可爱气质。舞蹈实力出众，每一次舞台都能展现完美表现！Gucci品牌大使！'
+            },
+            {
+                name: 'HAERIN',
+                color: '#32CD32',
+                colorName: 'green',
+                role: '领唱 · 副Rapper',
+                bday: '2006.05.15',
+                img: 'landscape_final/member_haerin_strip.jpg',
+                desc: '猫系美貌担当！独特的猫眼和优雅气质让她备受瞩目。绿色代表色象征她的清新自然。独特音色和副rapper担当，魅力独一无二！Dior品牌大使！'
+            },
+            {
+                name: 'MINJI',
+                color: '#00BFFF',
+                colorName: 'blue',
+                role: '队长 · 主Rapper · 主舞',
+                bday: '2004.02.07',
+                img: 'landscape_final/member_minji_strip.jpg',
+                desc: '队长大人！以冷静沉稳的领导力带领团队。蓝色的代表色象征她的智慧与可靠。主rapper和主舞担当，是团队的定海神针！Chanel品牌大使！'
+            }
+        ];
+
+        // ===== Hero 轮播 =====
+        const slides = document.querySelectorAll('.hero-slide');
+        const indicators = document.getElementById('slideIndicators');
+        const counter = document.getElementById('slideCounter');
+        let currentSlide = 0;
+        let slideInterval;
+        const totalSlides = slides.length;
+
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
+            dot.addEventListener('click', () => goToSlide(i));
+            indicators.appendChild(dot);
+        }
+
+        function goToSlide(index) {
+            slides[currentSlide].classList.remove('active');
+            indicators.children[currentSlide].classList.remove('active');
+            currentSlide = (index + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            indicators.children[currentSlide].classList.add('active');
+            counter.textContent = String(currentSlide + 1).padStart(2, '0') + ' / ' + String(totalSlides).padStart(2, '0');
+            resetAutoSlide();
+        }
+
+        function nextSlide() { goToSlide(currentSlide + 1); }
+        function prevSlide() { goToSlide(currentSlide - 1); }
+
+        function resetAutoSlide() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+        resetAutoSlide();
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'Escape') closeMemberModal();
+        });
+
+        let touchStartX = 0;
+        const slideshow = document.getElementById('heroSlideshow');
+        slideshow.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        slideshow.addEventListener('touchend', function(e) {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : prevSlide(); }
+        }, { passive: true });
+
+        // ===== 自定义光标 =====
+        const cursor = document.querySelector('.cursor');
+        let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
+        document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.15;
+            cursorY += (mouseY - cursorY) * 0.15;
+            cursor.style.left = (cursorX - 24) + 'px';
+            cursor.style.top = (cursorY - 5) + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        document.querySelectorAll('a, button, .member-card, .collage-strip, .cd-item, .gallery-item').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // ===== 漂浮像素块 =====
+        const pixelBlocks = document.getElementById('pixelBlocks');
+        const pColors = ['#FF1493', '#00BFFF', '#FFFF00', '#32CD32', '#9D00FF'];
+        for (let i = 0; i < 20; i++) {
+            const block = document.createElement('div');
+            block.className = 'pixel-block';
+            block.style.left = Math.random() * 100 + '%';
+            block.style.animationDuration = (8 + Math.random() * 12) + 's';
+            block.style.animationDelay = Math.random() * 5 + 's';
+            block.style.background = pColors[Math.floor(Math.random() * pColors.length)];
+            block.style.width = (6 + Math.random() * 10) + 'px';
+            block.style.height = block.style.width;
+            pixelBlocks.appendChild(block);
+        }
+
+        // ===== 滚动渐入 =====
+        const faders = document.querySelectorAll('.fade-in');
+        const appearOnScroll = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        faders.forEach(fader => appearOnScroll.observe(fader));
+
+        // ===== 平滑滚动 =====
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // ===== 成员弹窗 =====
+        function openMemberModal(index) {
+            const m = members[index];
+            document.getElementById('modalName').textContent = m.name;
+            document.getElementById('modalRole').textContent = m.role;
+            document.getElementById('modalBday').textContent = m.bday;
+            document.getElementById('modalColor').textContent = '✿ 代表色';
+            document.getElementById('modalColor').style.background = m.color;
+            document.getElementById('modalColor').style.color = m.color === '#FFFF00' ? '#000' : '#fff';
+            document.getElementById('modalColor').style.borderColor = m.color;
+            document.getElementById('modalDesc').textContent = m.desc;
+            document.getElementById('modalImage').src = m.img;
+            document.getElementById('memberModal').classList.add('active');
+        }
+
+        function closeMemberModal() {
+            document.getElementById('memberModal').classList.remove('active');
+        }
+
+        document.getElementById('memberModal').addEventListener('click', function(e) {
+            if (e.target === this) closeMemberModal();
+        });
+
+        // ===== CD 点击爱心星星弹出 =====
+        document.querySelectorAll('.cd-item').forEach(cd => {
+            cd.addEventListener('click', function(e) {
+                const emojis = ['💜', '💗', '⭐', '✨', '💖', '🎀', '🌟', '💜'];
+                for (let i = 0; i < 10; i++) {
+                    const spark = document.createElement('div');
+                    spark.className = 'cd-sparkle';
+                    spark.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    const angle = (Math.PI * 2 / 10) * i + Math.random() * 0.5;
+                    const dist = 40 + Math.random() * 60;
+                    spark.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+                    spark.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+                    spark.style.left = e.offsetX + 'px';
+                    spark.style.top = e.offsetY + 'px';
+                    cd.appendChild(spark);
+                    setTimeout(() => spark.remove(), 800);
+                }
+                playAlbum(cd.querySelector('.cd-title')?.textContent || '');
+            });
+        });
+
+        // ===== 专辑播放 =====
+        function playAlbum(title) {
+            const searchQuery = encodeURIComponent('NewJeans ' + title);
+            window.open('https://www.youtube.com/results?search_query=' + searchQuery, '_blank');
+        }
+
+        // ===== 导航栏高亮 =====
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-links a');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (pageYOffset >= sectionTop) current = section.getAttribute('id');
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewJeans - Albums Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Permanent+Marker&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --dream-blue: #b8d4e8;
+            --dream-pink: #ffc0cb;
+            --dream-lavender: #e6e6fa;
+            --soft-cyan: #aeeeee;
+            --candy-pink: #FF1493;
+            --candy-blue: #00BFFF;
+            --candy-yellow: #FFFF00;
+            --candy-green: #32CD32;
+            --candy-purple: #9D00FF;
+            --black: #000;
+            --white: #FFF;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Fredoka One', cursive;
+            background: linear-gradient(180deg, var(--dream-blue) 0%, var(--dream-lavender) 50%, var(--dream-pink) 100%);
+            color: var(--white);
+            overflow-x: hidden;
+            cursor: none;
+            min-height: 100vh;
+        }
+
+        /* ===== 点阵背景 ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px);
+            background-size: 6px 6px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ===== 扫描线 ===== */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+            z-index: 9998;
+            pointer-events: none;
+        }
+
+        /* ===== 梦核光晕 ===== */
+        .dream-glow {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(184,212,232,0.5) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(255,192,203,0.4) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+            animation: dreamGlowShift 8s ease-in-out infinite alternate;
+        }
+        @keyframes dreamGlowShift {
+            0% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* ===== Bunny 鼠标自定义光标 ===== */
+        .cursor {
+            width: 48px; height: 35px;
+            background: url('landscape_final/bunny_cursor.png') no-repeat center/contain;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.15s ease;
+            filter: drop-shadow(0 0 8px rgba(255,20,147,0.7));
+        }
+        .cursor.hover { transform: scale(1.3); }
+
+        /* ===== 加载动画 ===== */
+        .loading-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--dream-blue), var(--dream-lavender), var(--dream-pink));
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            transition: opacity 0.8s ease-out;
+        }
+        .loading-screen.fade-out { opacity: 0; pointer-events: none; }
+        .loading-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            color: var(--candy-purple);
+            text-shadow: 2px 2px 0 var(--white);
+            animation: loadBounce 0.6s ease-in-out infinite alternate;
+        }
+        .loading-bar {
+            width: 200px; height: 8px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 2px solid var(--candy-pink);
+        }
+        .loading-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--candy-pink), var(--candy-blue), var(--candy-purple));
+            border-radius: 4px;
+            animation: loadFill 1.5s ease-in-out forwards;
+        }
+        @keyframes loadBounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-8px); }
+        }
+        @keyframes loadFill {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* ===== 导航栏 ===== */
+        nav {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(12px);
+            border-bottom: 3px solid var(--candy-pink);
+        }
+        .logo {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1rem;
+            color: var(--candy-pink);
+            text-shadow: 2px 2px 0 var(--candy-purple);
+        }
+        .nav-links { list-style: none; display: flex; gap: 1.5rem; }
+        .nav-links a {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.45rem;
+            color: var(--candy-purple);
+            text-decoration: none;
+            padding: 0.5rem 0.8rem;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            transition: all 0.3s;
+            text-shadow: 1px 1px 0 var(--white);
+        }
+        .nav-links a:hover {
+            border-color: var(--candy-pink);
+            background: rgba(255,20,147,0.15);
+            transform: translateY(-2px);
+        }
+        .nav-links a.active {
+            border-color: var(--candy-pink);
+            background: rgba(255,20,147,0.25);
+            color: var(--candy-pink);
+        }
+
+        /* ===== Hero Section ===== */
+        .hero-albums {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 8rem 2rem 4rem;
+            overflow: hidden;
+        }
+        .hero-albums::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: radial-gradient(circle, var(--candy-blue) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .hero-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2.2rem;
+            color: var(--candy-pink);
+            text-shadow: 3px 3px 0 var(--candy-purple), 6px 6px 0 rgba(0,0,0,0.15);
+            margin-bottom: 0.8rem;
+            position: relative;
+            z-index: 2;
+            animation: titleFloat 3s ease-in-out infinite;
+        }
+        .hero-subtitle {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.2rem;
+            color: var(--candy-purple);
+            text-shadow: 1px 1px 0 var(--white);
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+        .hero-desc {
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.95rem;
+            color: rgba(0,0,0,0.5);
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* ===== Glitch Title ===== */
+        .glitch-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .glitch-wrapper::before,
+        .glitch-wrapper::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2.2rem;
+        }
+        .glitch-wrapper::before {
+            color: var(--candy-blue);
+            animation: glitch1 2s infinite;
+            clip-path: inset(0 0 60% 0);
+        }
+        .glitch-wrapper::after {
+            color: var(--candy-pink);
+            animation: glitch2 2s infinite;
+            clip-path: inset(60% 0 0 0);
+        }
+        @keyframes glitch1 {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-3px, 1px); }
+            94% { transform: translate(3px, -1px); }
+            96% { transform: translate(-2px, 0); }
+        }
+        @keyframes glitch2 {
+            0%, 90%, 100% { transform: translate(0); }
+            91% { transform: translate(3px, 1px); }
+            93% { transform: translate(-3px, -1px); }
+            95% { transform: translate(2px, 0); }
+        }
+
+        /* ===== CD 轮播区域 ===== */
+        .cd-showcase {
+            position: relative;
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            z-index: 2;
+        }
+
+        .cd-carousel {
+            position: relative;
+            overflow: hidden;
+            padding: 2rem 0;
+        }
+
+        .cd-track {
+            display: flex;
+            gap: 2.5rem;
+            padding: 2rem 4rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            scroll-behavior: smooth;
+        }
+        .cd-track::-webkit-scrollbar { display: none; }
+
+        .cd-item {
+            flex: 0 0 280px;
+            scroll-snap-align: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+        }
+        .cd-item:hover { transform: translateY(-15px) scale(1.05); }
+
+        .cd-disc {
+            width: 260px; height: 260px;
+            border-radius: 50%;
+            margin: 0 auto 1.2rem;
+            position: relative;
+            background: conic-gradient(
+                from 0deg,
+                #ff6b9d, #c44dff, #6bbaff, #4dff88, #ffeb3b, #ff6b9d
+            );
+            padding: 6px;
+            box-shadow: 4px 4px 0 var(--black), 0 0 0 4px var(--black);
+            transition: all 0.4s;
+            animation: cdSpin 12s linear infinite paused;
+        }
+        .cd-item:hover .cd-disc {
+            animation-play-state: running;
+            box-shadow: 6px 6px 0 var(--candy-pink), 0 0 0 4px var(--candy-pink), 0 0 40px rgba(255,20,147,0.5), 0 0 80px rgba(255,20,147,0.2);
+        }
+        @keyframes cdSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .cd-cover {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cd-hole {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 52px; height: 52px;
+            background: var(--dream-lavender);
+            border-radius: 50%;
+            border: 4px solid var(--black);
+            z-index: 3;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .cd-label {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.38rem;
+            color: var(--black);
+            white-space: nowrap;
+            z-index: 4;
+        }
+
+        .cd-info {
+            position: relative;
+            z-index: 2;
+        }
+        .cd-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.55rem;
+            color: var(--candy-purple);
+            text-shadow: 1px 1px 0 var(--white);
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+        }
+        .cd-year {
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 0.3rem;
+        }
+        .cd-play {
+            display: inline-block;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.35rem;
+            color: var(--candy-pink);
+            background: rgba(255,20,147,0.12);
+            border: 2px solid var(--candy-pink);
+            padding: 0.35rem 0.7rem;
+            border-radius: 20px;
+            transition: all 0.3s;
+            opacity: 0;
+            transform: translateY(5px);
+        }
+        .cd-item:hover .cd-play {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .cd-play:hover {
+            background: var(--candy-pink);
+            color: var(--white);
+            box-shadow: 3px 3px 0 var(--black);
+        }
+
+        /* ===== 导航箭头 ===== */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 55px; height: 55px;
+            background: var(--candy-pink);
+            border: 4px solid var(--black);
+            border-radius: 50%;
+            color: var(--white);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+            box-shadow: 4px 4px 0 var(--black);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .carousel-btn:hover {
+            background: var(--candy-yellow);
+            transform: translateY(-50%) scale(1.1);
+        }
+        .carousel-btn.prev { left: -5px; }
+        .carousel-btn.next { right: -5px; }
+
+        /* ===== 滚动指示器 ===== */
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-top: 2rem;
+        }
+        .indicator-dot {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: rgba(255,20,147,0.3);
+            border: 2px solid var(--candy-pink);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .indicator-dot.active {
+            background: var(--candy-pink);
+            box-shadow: 0 0 10px rgba(255,20,147,0.6);
+            transform: scale(1.2);
+        }
+        .indicator-dot:hover {
+            background: var(--candy-purple);
+        }
+
+        /* ===== CD 点击爱心星星弹出 ===== */
+        .cd-sparkle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.4rem;
+            z-index: 100;
+            animation: sparkleBurst 0.8s ease-out forwards;
+        }
+        @keyframes sparkleBurst {
+            0% { opacity: 1; transform: translate(0, 0) scale(0.5) rotate(0deg); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.2) rotate(180deg); }
+        }
+
+        /* ===== 漂浮像素块 ===== */
+        .pixel-blocks {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .pixel-block {
+            position: absolute;
+            width: 12px; height: 12px;
+            opacity: 0.4;
+            animation: pixelFloat linear infinite;
+        }
+        @keyframes pixelFloat {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* ===== VHS 条纹 ===== */
+        .vhs-stripes {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9997;
+            background:
+                linear-gradient(transparent 50%, rgba(255,192,203,0.03) 50%),
+                linear-gradient(90deg, rgba(184,212,232,0.03) 50%, transparent 50%);
+            background-size: 100% 4px, 4px 100%;
+        }
+
+        /* ===== Section标题 ===== */
+        .section-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            color: var(--candy-purple);
+            text-shadow: 3px 3px 0 var(--white), 5px 5px 0 rgba(0,0,0,0.1);
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+        .section-subtitle {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1rem;
+            color: rgba(0,0,0,0.5);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        /* ===== YouTube 弹窗 ===== */
+        .yt-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(184,212,232,0.95);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+        .yt-modal.active { display: flex; }
+        .yt-content {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 700px;
+            width: 90%;
+            text-align: center;
+            border: 5px solid var(--candy-pink);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: modalIn 0.3s ease-out;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .yt-content h2 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.9rem;
+            color: var(--candy-purple);
+            margin-bottom: 1.5rem;
+        }
+        .yt-content iframe {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border: 4px solid var(--candy-blue);
+            border-radius: 12px;
+            box-shadow: 4px 4px 0 var(--black);
+            height: 500px;
+        }
+        .yt-close {
+            display: inline-block;
+            margin-top: 1.5rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            color: var(--white);
+            background: var(--candy-pink);
+            border: 3px solid var(--black);
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 3px 3px 0 var(--black);
+        }
+        .yt-close:hover {
+            background: var(--candy-yellow);
+            transform: scale(1.05);
+        }
+
+        /* ===== Footer ===== */
+        footer {
+            padding: 2rem;
+            background: linear-gradient(180deg, rgba(255,192,203,0.5) 0%, rgba(184,212,232,0.8) 100%);
+            text-align: center;
+            border-top: 4px solid var(--candy-pink);
+            position: relative;
+            z-index: 2;
+        }
+        .footer-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.5rem;
+            color: var(--candy-purple);
+            text-shadow: 1px 1px 0 var(--white);
+        }
+        .footer-link {
+            display: inline-block;
+            margin-top: 0.8rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.4rem;
+            color: var(--candy-blue);
+            text-decoration: none;
+            border: 2px solid var(--candy-blue);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .footer-link:hover {
+            background: var(--candy-blue);
+            color: var(--white);
+            box-shadow: 3px 3px 0 var(--black);
+        }
+
+        /* ===== 滚动渐入 ===== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 1.2rem; }
+            .glitch-wrapper::before, .glitch-wrapper::after { font-size: 1.2rem; }
+            nav { padding: 0.8rem 1rem; }
+            .nav-links a { font-size: 0.3rem; padding: 0.3rem 0.4rem; }
+            .cd-item { flex: 0 0 200px; }
+            .cd-disc { width: 180px; height: 180px; }
+            .cd-hole { width: 38px; height: 38px; }
+            .carousel-btn { width: 40px; height: 40px; font-size: 0.7rem; }
+            .carousel-btn.prev { left: -3px; }
+            .carousel-btn.next { right: -3px; }
+            .indicator-dot { width: 10px; height: 10px; }
+            .section-title { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 加载动画 -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-text">LOADING...</div>
+        <div class="loading-bar"><div class="loading-fill"></div></div>
+    </div>
+
+    <!-- 扫描线 -->
+    <div class="scanlines"></div>
+
+    <!-- VHS 条纹 -->
+    <div class="vhs-stripes"></div>
+
+    <!-- 梦核光晕 -->
+    <div class="dream-glow"></div>
+
+    <!-- 漂浮像素块 -->
+    <div class="pixel-blocks" id="pixelBlocks"></div>
+
+    <!-- 自定义光标 -->
+    <div class="cursor"></div>
+
+    <!-- 导航栏 -->
+    <nav>
+        <div class="logo">NEWJEANS</div>
+        <ul class="nav-links">
+            <li><a href="newjeans-index.html">HOME</a></li>
+            <li><a href="#albums" class="active">ALBUMS</a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== Hero + Albums ===== -->
+    <section class="hero-albums" id="albums">
+        <div class="glitch-wrapper fade-in" data-text="ALBUMS">
+            <h1 class="hero-title">ALBUMS</h1>
+        </div>
+        <p class="hero-subtitle fade-in">✿ 音楽コレクション ✿</p>
+        <p class="hero-desc fade-in">点击 CD 跳转 YouTube MV · 左右滑动浏览</p>
+
+        <div class="cd-showcase fade-in">
+            <button class="carousel-btn prev" onclick="scrollCD(-1)">&#9664;</button>
+            <div class="cd-carousel">
+                <div class="cd-track" id="cdTrack">
+                    <div class="cd-item" onclick="openYT(0)">
+                        <div class="cd-disc">
+                            <img class="cd-cover" src="landscape_final/cd_albums/cd_attention.png" alt="Attention">
+                            <div class="cd-hole"><span class="cd-label">1st</span></div>
+                        </div>
+                        <div class="cd-info">
+                            <p class="cd-title">ATTENTION</p>
+                            <p class="cd-year">2022.07.22</p>
+                            <span class="cd-play">▶ WATCH MV</span>
+                        </div>
+                    </div>
+                    <div class="cd-item" onclick="openYT(1)">
+                        <div class="cd-disc">
+                            <img class="cd-cover" src="landscape_final/cd_albums/cd_hypeboy.png" alt="Hype Boy">
+                            <div class="cd-hole"><span class="cd-label">2nd</span></div>
+                        </div>
+                        <div class="cd-info">
+                            <p class="cd-title">HYPE BOY</p>
+                            <p class="cd-year">2022.07.23</p>
+                            <span class="cd-play">▶ WATCH MV</span>
+                        </div>
+                    </div>
+                    <div class="cd-item" onclick="openYT(2)">
+                        <div class="cd-disc">
+                            <img class="cd-cover" src="landscape_final/cd_albums/cd_cookie.png" alt="Cookie">
+                            <div class="cd-hole"><span class="cd-label">3rd</span></div>
+                        </div>
+                        <div class="cd-info">
+                            <p class="cd-title">COOKIE</p>
+                            <p class="cd-year">2022.08.01</p>
+                            <span class="cd-play">▶ WATCH MV</span>
+                        </div>
+                    </div>
+                    <div class="cd-item" onclick="openYT(3)">
+                        <div class="cd-disc">
+                            <img class="cd-cover" src="landscape_final/cd_albums/cd_ditto.png" alt="Ditto">
+                            <div class="cd-hole"><span class="cd-label">4th</span></div>
+                        </div>
+                        <div class="cd-info">
+                            <p class="cd-title">DITTO</p>
+                            <p class="cd-year">2022.12.19</p>
+                            <span class="cd-play">▶ WATCH MV</span>
+                        </div>
+                    </div>
+                    <div class="cd-item" onclick="openYT(4)">
+                        <div class="cd-disc">
+                            <img class="cd-cover" src="landscape_final/cd_albums/cd_omg.png" alt="OMG">
+                            <div class="cd-hole"><span class="cd-label">5th</span></div>
+                        </div>
+                        <div class="cd-info">
+                            <p class="cd-title">OMG</p>
+                            <p class="cd-year">2023.01.02</p>
+                            <span class="cd-play">▶ WATCH MV</span>
+                        </div>
+                    </div>
+                    <div class="cd-item" onclick="openYT(5)">
+                        <div class="cd-disc">
+                            <img class="cd-cover" src="landscape_final/cd_albums/cd_supershy.png" alt="Super Shy">
+                            <div class="cd-hole"><span class="cd-label">6th</span></div>
+                        </div>
+                        <div class="cd-info">
+                            <p class="cd-title">SUPER SHY</p>
+                            <p class="cd-year">2023.07.07</p>
+                            <span class="cd-play">▶ WATCH MV</span>
+                        </div>
+                    </div>
+                    <div class="cd-item" onclick="openYT(6)">
+                        <div class="cd-disc">
+                            <img class="cd-cover" src="landscape_final/cd_albums/cd_newjeans.png" alt="New Jeans">
+                            <div class="cd-hole"><span class="cd-label">7th</span></div>
+                        </div>
+                        <div class="cd-info">
+                            <p class="cd-title">NEW JEANS</p>
+                            <p class="cd-year">2023.07.07</p>
+                            <span class="cd-play">▶ WATCH MV</span>
+                        </div>
+                    </div>
+                    <div class="cd-item" onclick="openYT(7)">
+                        <div class="cd-disc">
+                            <img class="cd-cover" src="landscape_final/cd_albums/cd_howsweet.png" alt="How Sweet">
+                            <div class="cd-hole"><span class="cd-label">8th</span></div>
+                        </div>
+                        <div class="cd-info">
+                            <p class="cd-title">HOW SWEET</p>
+                            <p class="cd-year">2024.05.24</p>
+                            <span class="cd-play">▶ WATCH MV</span>
+                        </div>
+                    </div>
+                    <div class="cd-item" onclick="openYT(8)">
+                        <div class="cd-disc">
+                            <img class="cd-cover" src="landscape_final/cd_albums/cd_supernatural.png" alt="Supernatural">
+                            <div class="cd-hole"><span class="cd-label">9th</span></div>
+                        </div>
+                        <div class="cd-info">
+                            <p class="cd-title">SUPERNATURAL</p>
+                            <p class="cd-year">2024.06.21</p>
+                            <span class="cd-play">▶ WATCH MV</span>
+                        </div>
+                    </div>
+                    <div class="cd-item" onclick="openYT(9)">
+                        <div class="cd-disc">
+                            <img class="cd-cover" src="landscape_final/cd_albums/cd_bubblegum.png" alt="Bubble Gum">
+                            <div class="cd-hole"><span class="cd-label">10th</span></div>
+                        </div>
+                        <div class="cd-info">
+                            <p class="cd-title">BUBBLE GUM</p>
+                            <p class="cd-year">2024.04.19</p>
+                            <span class="cd-play">▶ WATCH MV</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-btn next" onclick="scrollCD(1)">&#9654;</button>
+            <div class="carousel-indicators" id="indicators"></div>
+        </div>
+    </section>
+
+    <!-- ===== Footer ===== -->
+    <footer>
+        <p class="footer-text">&#9829; NEWJEANS DREAMCORE ALBUMS &#9829;</p>
+        <a class="footer-link" href="newjeans-index.html">← BACK TO HOME</a>
+    </footer>
+
+    <!-- ===== YouTube 弹窗 ===== -->
+    <div class="yt-modal" id="ytModal">
+        <div class="yt-content">
+            <h2 id="ytTitle"></h2>
+            <iframe id="ytFrame" src="" allowfullscreen="true" scrolling="no" border="0" frameborder="no" framespacing="0"></iframe>
+            <button class="yt-close" onclick="closeYT()">✕ CLOSE</button>
+        </div>
+    </div>
+
+    <script>
+        // ===== 专辑数据 + Bilibili MV =====
+        const albums = [
+            { title: 'ATTENTION', bvid: 'BV1WG411K7fC', aid: '433717979' },
+            { title: 'HYPE BOY', bvid: 'BV12G4y137k5', aid: '818631775' },
+            { title: 'COOKIE', bvid: 'BV1AK411r7Bq', aid: '476193097' },
+            { title: 'DITTO', bvid: 'BV1XM4y1E777', aid: '912640028' },
+            { title: 'OMG', bvid: 'BV1Xz4y1H7Dc', aid: '572690068' },
+            { title: 'SUPER SHY', bvid: 'BV1ew4m1q7K2', aid: '' },
+            { title: 'NEW JEANS', bvid: 'BV1ew4m1q7K2', aid: '' },
+            { title: 'HOW SWEET', bvid: 'BV1zH4y1u7NM', aid: '1054775617' },
+            { title: 'SUPERNATURAL', bvid: 'BV154421D7Nv', aid: '1755984383' },
+            { title: 'BUBBLE GUM', bvid: 'BV1Ym41127Qi', aid: '1903531524' },
+        ];
+
+        // ===== 加载动画 =====
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('fade-out');
+                setTimeout(() => document.getElementById('loadingScreen').remove(), 800);
+            }, 1500);
+        });
+
+        // ===== CD 轮播导航 =====
+        const cdTrack = document.getElementById('cdTrack');
+        const cdItems = document.querySelectorAll('.cd-item');
+        const indicatorsEl = document.getElementById('indicators');
+        let currentIndex = 0;
+
+        // 创建指示器
+        cdItems.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'indicator-dot' + (i === 0 ? ' active' : '');
+            dot.addEventListener('click', () => goToCD(i));
+            indicatorsEl.appendChild(dot);
+        });
+
+        function goToCD(index) {
+            currentIndex = Math.max(0, Math.min(index, cdItems.length - 1));
+            const item = cdItems[currentIndex];
+            item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            updateIndicators();
+        }
+
+        function scrollCD(dir) {
+            goToCD(currentIndex + dir);
+        }
+
+        function updateIndicators() {
+            const dots = indicatorsEl.querySelectorAll('.indicator-dot');
+            dots.forEach((d, i) => d.classList.toggle('active', i === currentIndex));
+        }
+
+        // 监听滚动更新指示器
+        let scrollTimeout;
+        cdTrack.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const trackRect = cdTrack.getBoundingClientRect();
+                const center = trackRect.left + trackRect.width / 2;
+                let closest = 0, minDist = Infinity;
+                cdItems.forEach((item, i) => {
+                    const rect = item.getBoundingClientRect();
+                    const dist = Math.abs(rect.left + rect.width / 2 - center);
+                    if (dist < minDist) { minDist = dist; closest = i; }
+                });
+                currentIndex = closest;
+                updateIndicators();
+            }, 100);
+        });
+
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') scrollCD(1);
+            if (e.key === 'ArrowLeft') scrollCD(-1);
+            if (e.key === 'Escape') closeYT();
+        });
+
+        // 触摸滑动
+        let touchStartX = 0;
+        cdTrack.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        cdTrack.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) scrollCD(diff > 0 ? 1 : -1);
+        }, { passive: true });
+
+        // ===== YouTube 弹窗 =====
+        const ytModal = document.getElementById('ytModal');
+        const ytFrame = document.getElementById('ytFrame');
+        const ytTitle = document.getElementById('ytTitle');
+
+        function openYT(index) {
+            const album = albums[index];
+            ytTitle.textContent = '▶ ' + album.title + ' - OFFICIAL MV';
+            let src = '//player.bilibili.com/player.html?isOutside=true&bvid=' + album.bvid + '&p=1';
+            if (album.aid) src += '&aid=' + album.aid;
+            if (album.cid) src += '&cid=' + album.cid;
+            ytFrame.src = src;
+            ytModal.classList.add('active');
+            spawnSparkles(index);
+        }
+
+        function closeYT() {
+            ytFrame.src = '';
+            ytModal.classList.remove('active');
+        }
+
+        ytModal.addEventListener('click', (e) => {
+            if (e.target === ytModal) closeYT();
+        });
+
+        // ===== 爱心星星粒子 =====
+        function spawnSparkles(cdIndex) {
+            const item = cdItems[cdIndex];
+            const rect = item.getBoundingClientRect();
+            const emojis = ['✿', '★', '♥', '✦', '❀', '♪', '✧'];
+            for (let i = 0; i < 12; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'cd-sparkle';
+                sparkle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                sparkle.style.left = (rect.left + rect.width / 2) + 'px';
+                sparkle.style.top = (rect.top + rect.height / 3) + 'px';
+                sparkle.style.setProperty('--tx', (Math.random() - 0.5) * 120 + 'px');
+                sparkle.style.setProperty('--ty', (Math.random() - 0.5) * 120 - 40 + 'px');
+                sparkle.style.color = ['#FF1493', '#00BFFF', '#FFFF00', '#9D00FF', '#32CD32'][Math.floor(Math.random() * 5)];
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 800);
+            }
+        }
+
+        // ===== 自定义光标 =====
+        const cursor = document.querySelector('.cursor');
+        let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
+        document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.15;
+            cursorY += (mouseY - cursorY) * 0.15;
+            cursor.style.left = (cursorX - 24) + 'px';
+            cursor.style.top = (cursorY - 5) + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        document.querySelectorAll('a, button, .cd-item, .indicator-dot, .footer-link').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // ===== 漂浮像素块 =====
+        const pixelBlocks = document.getElementById('pixelBlocks');
+        const pColors = ['#FF1493', '#00BFFF', '#FFFF00', '#32CD32', '#9D00FF'];
+        for (let i = 0; i < 20; i++) {
+            const block = document.createElement('div');
+            block.className = 'pixel-block';
+            block.style.left = Math.random() * 100 + '%';
+            block.style.animationDuration = (15 + Math.random() * 20) + 's';
+            block.style.animationDelay = Math.random() * 10 + 's';
+            block.style.backgroundColor = pColors[Math.floor(Math.random() * pColors.length)];
+            pixelBlocks.appendChild(block);
+        }
+
+        // ===== 滚动渐入 =====
+        const fadeEls = document.querySelectorAll('.fade-in');
+        const fadeObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        fadeEls.forEach(el => fadeObserver.observe(el));
+    </script>
+</body>
+</html>
